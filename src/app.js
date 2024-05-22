@@ -9,7 +9,7 @@ class Database {
       if (err) {
         console.error("Fejl ved åbning af database", err.message);
       } else {
-        console.log("Connected to the SQLite database.");
+        console.log("Forbundet til SQLite database.");
       }
     });
   }
