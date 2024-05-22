@@ -1,8 +1,6 @@
-Kør følgende i termnialen for at starte app'en:
+Velkommen!
 
-1. cd src
-2. npm install
-3. node app.js
-4. Brugerfladen kan tilgåes på localhost:3000/pages/index.html
+1. Alt kode ligger i index.html
+2. Åben index.html filen i en browser
 
-Tak!
+Enjoy!

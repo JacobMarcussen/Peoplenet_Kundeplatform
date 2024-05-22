@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Kursist Interface</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      input,
+      button {
+        margin: 5px 0;
+      }
+      .kursus-list {
+        margin-top: 10px;
+      }
+    </style>
+    <!-- jsPDF bibliotek -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+  </head>
+  <body>
+    <h1>Kursist Interface</h1>
+    <h2>Opret Kursist</h2>
+    <label for="navn">Navn:</label>
+    <input type="text" id="navn" required />
+    <br />
+    <label for="email">Email:</label>
+    <input type="email" id="email" required />
+    <br />
+    <button onclick="opretKursist()">Opret Kursist</button>
+
+    <div id="kursistInfo" style="display: none">
+      <h2>Kursist Oplysninger</h2>
+      <p id="kursistDetails"></p>
+
+      <h2>Tilmeld Kursus</h2>
+      <button
+        onclick="tilføjKursus('Excel Grundlæggende', 'Introduktion til grundlæggende Excel færdigheder.')"
+      >
+        Excel Grundlæggende
+      </button>
+      <button
+        onclick="tilføjKursus('Power BI Avanceret', 'Avanceret kursus i Power BI for dataanalyse.')"
+      >
+        Power BI Avanceret
+      </button>
+
+      <div class="kursus-list">
+        <h2>Tilmeldte Kurser</h2>
+        <ul id="kurserList"></ul>
+      </div>
+
+      <div class="kursusbeviser-list" style="margin-top: 20px">
+        <h2>Kursusbeviser</h2>
+        <ul id="kursusbeviserList"></ul>
+      </div>
+    </div>
+
+    <script>
+      const { jsPDF } = window.jspdf;
+
+      // Definition af en Kursist-klasse
+      class Kursist {
+        constructor(navn, email) {
+          this.navn = navn;
+          this.email = email;
+          this.kurser = [];
+          this.kursusbeviser = [];
+        }
+
+        tilføjKursus(kursus) {
+          this.kurser.push(kursus);
+          this.genererKursusbevis(kursus);
+        }
+
+        genererKursusbevis(kursus) {
+          const kursusbevis = new Kursusbevis(this.navn, kursus.titel);
+          this.kursusbeviser.push(kursusbevis);
+        }
+
+        getKurser() {
+          return this.kurser;
+        }
+
+        getKursusbeviser() {
+          return this.kursusbeviser;
+        }
+
+        getOplysninger() {
+          return `Navn: ${this.navn}, Email: ${this.email}`;
+        }
+      }
+
+      // Definition af en Kursus-klasse
+      class Kursus {
+        constructor(titel, beskrivelse) {
+          this.titel = titel;
+          this.beskrivelse = beskrivelse;
+        }
+
+        getOplysninger() {
+          return `Kursus: ${this.titel}, Beskrivelse: ${this.beskrivelse}`;
+        }
+      }
+
+      // Definition af en Kursusbevis-klasse
+      class Kursusbevis {
+        constructor(kursistNavn, kursusTitel) {
+          this.kursistNavn = kursistNavn;
+          this.kursusTitel = kursusTitel;
+          this.dato = new Date().toLocaleDateString();
+        }
+
+        getOplysninger() {
+          return `Kursusbevis for: ${this.kursistNavn}, Kursus: ${this.kursusTitel}, Dato: ${this.dato}`;
+        }
+
+        download() {
+          const doc = new jsPDF();
+          doc.text(`Kursusbevis`, 10, 10);
+          doc.text(`Kursist: ${this.kursistNavn}`, 10, 20);
+          doc.text(`Kursus: ${this.kursusTitel}`, 10, 30);
+          doc.text(`Dato: ${this.dato}`, 10, 40);
+          doc.save(`${this.kursistNavn}_Kursusbevis_${this.kursusTitel}.pdf`);
+        }
+      }
+
+      let kursist;
+
+      function opretKursist() {
+        const navn = document.getElementById("navn").value;
+        const email = document.getElementById("email").value;
+
+        kursist = new Kursist(navn, email);
+        document.getElementById("kursistDetails").innerText = kursist.getOplysninger();
+        document.getElementById("kursistInfo").style.display = "block";
+      }
+
+      function tilføjKursus(titel, beskrivelse) {
+        const kursus = new Kursus(titel, beskrivelse);
+        kursist.tilføjKursus(kursus);
+
+        const kurserList = document.getElementById("kurserList");
+        const liKursus = document.createElement("li");
+        liKursus.innerText = kursus.getOplysninger();
+        kurserList.appendChild(liKursus);
+
+        const kursusbeviserList = document.getElementById("kursusbeviserList");
+        const kursusbevis = kursist.kursusbeviser[kursist.kursusbeviser.length - 1];
+        const liKursusbevis = document.createElement("li");
+        liKursusbevis.innerText = kursusbevis.getOplysninger();
+        const downloadButton = document.createElement("button");
+        downloadButton.innerText = "Download Kursusbevis";
+        downloadButton.onclick = () => kursusbevis.download();
+        liKursusbevis.appendChild(downloadButton);
+        kursusbeviserList.appendChild(liKursusbevis);
+      }
+    </script>
+  </body>
+</html>
